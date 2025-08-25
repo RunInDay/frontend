@@ -64,12 +64,18 @@ const GlobalStyles = () => (
 
       body {
         font-family: 'PretendardRegular', sans-serif;
+        font-size: 14px;
+        max-width: 480px;
+        min-height: 100dvh;
+        margin: 0 auto;
+        border: 1px solid #ccc; // 개발할때만 적용
       }
 
-      /* 모바일 전용 미디어 쿼리 */
-      @media (max-width: 768px) {
+      /* 데스크탑 스타일 */
+      @media (min-width: 769px) {
         body {
-          font-size: 14px;
+          max-width: 480px;
+          margin: 0 auto;
         }
       }
     `}
