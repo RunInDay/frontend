@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">run-in-day</string>
+    <string name="title_activity_main">run-in-day</string>
+    <string name="package_name">com.ssafy.runinday</string>
+    <string name="custom_url_scheme">com.ssafy.runinday</string>
+</resources>

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@emotion/style": "^0.8.0",
     "@emotion/styled": "^11.14.1",
