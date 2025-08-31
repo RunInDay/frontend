@@ -87,11 +87,6 @@ const fetchDurunubiApi = async (endpoint: string, params: Record<string, string 
     ...params
   }
   
-  console.log('🏃‍♂️ Durunubi API 호출 준비:', {
-    endpoint,
-    apiKeyPrefix: API_KEY.substring(0, 20) + '...',
-    params: Object.keys(params)
-  })
   
   // Check cache first
   const cachedData = apiCache.get<DurunubiApiResponse>(endpoint, defaultParams)

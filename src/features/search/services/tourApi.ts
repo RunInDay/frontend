@@ -131,7 +131,7 @@ export const searchKeyword = async (params: SearchParams): Promise<TourItem[]> =
     MobileOS: 'ETC',
     MobileApp: 'RunInDay',
     _type: 'json',
-    arrange: params.arrange || 'A'
+    arrange: params.arrange || 'P'
   }
   
   // 키워드는 필수이므로 항상 추가
@@ -147,11 +147,11 @@ export const searchKeyword = async (params: SearchParams): Promise<TourItem[]> =
   if (areaCode) {
     apiParams.areaCode = areaCode
     // areaCode가 있을 때만 sigunguCode 추가 가능
-    if (params.sigunguCode) {
-      apiParams.sigunguCode = params.sigunguCode
+    if (params.sigungucode) {
+      apiParams.sigunguCode = params.sigungucode
     }
   }
-  
+
   // cat1이 있을 때만 cat2, cat3 추가
   if (params.cat1) {
     apiParams.cat1 = params.cat1
@@ -198,27 +198,28 @@ export const searchKeyword = async (params: SearchParams): Promise<TourItem[]> =
 export const searchFestival = async (params: SearchParams): Promise<TourItem[]> => {
   const today = new Date()
   const oneMonthLater = new Date(today)
-  oneMonthLater.setMonth(oneMonthLater.getMonth() + 6) // 6개월로 확장
+  oneMonthLater.setMonth(oneMonthLater.getMonth() + 12) // 6개월로 확장
   
   const apiParams: Record<string, string | number> = {
-    numOfRows: params.numOfRows || 10,
+    numOfRows: params.numOfRows || 1000,
     pageNo: params.pageNo || 1,
     MobileOS: 'ETC',
     MobileApp: 'RunInDay',
     _type: 'json',
-    arrange: params.arrange || 'A',
-    eventStartDate: params.eventStartDate || formatDate(today),
+    arrange: params.arrange || 'P',
+    eventStartDate: '20250101',
+    // eventStartDate: params.eventStartDate || formatDate(today),
     eventEndDate: params.eventEndDate || formatDate(oneMonthLater)
   }
   
   // 선택적 파라미터들은 값이 있을 때만 추가
   if (params.areaCode) {
     apiParams.areaCode = params.areaCode
-    if (params.sigunguCode) {
-      apiParams.sigunguCode = params.sigunguCode
+    if (params.sigungucode) {
+      apiParams.sigunguCode = params.sigungucode
     }
   }
-  
+
   if (params.cat1) {
     apiParams.cat1 = params.cat1
     if (params.cat2) {
@@ -253,7 +254,7 @@ export const searchFestival = async (params: SearchParams): Promise<TourItem[]> 
       return []
     }
     
-    let results = Array.isArray(items) ? items : [items]
+    const results = Array.isArray(items) ? items : [items]
     
     // 디버깅: 원본 결과 확인
     console.log('Festival API 원본 결과:', results.length, '개')
@@ -261,18 +262,9 @@ export const searchFestival = async (params: SearchParams): Promise<TourItem[]> 
       console.log('첫 번째 항목 제목:', results[0].title)
     }
     
-    // 스포츠 대회 관련 항목 우선 표시, 없으면 전체 표시
-    const filteredResults = results.filter(item => {
-      const title = (item.title || '').toLowerCase()
-      return SportsEventKeywords.some(keyword => 
-        title.includes(keyword.toLowerCase())
-      )
-    })
-    
-    console.log('필터링 후 결과:', filteredResults.length, '개')
-    
-    // 필터링 결과가 없으면 원본 결과의 일부를 반환
-    return filteredResults.length > 0 ? filteredResults : results
+    // 모든 축제 결과를 반환 (Search.tsx에서 스포츠 분류 처리)
+    console.log('✅ 전체 축제 결과 반환:', results.length, '개')
+    return results
   } catch (error) {
     console.error('Search festival error:', error)
     return []
@@ -286,7 +278,7 @@ export const getAreaBasedList = async (params: SearchParams): Promise<TourItem[]
     MobileOS: 'ETC',
     MobileApp: 'RunInDay',
     _type: 'json',
-    arrange: params.arrange || 'A'
+    arrange: params.arrange || 'P'
   }
   
   // 선택적 파라미터들은 값이 있을 때만 추가
@@ -296,8 +288,8 @@ export const getAreaBasedList = async (params: SearchParams): Promise<TourItem[]
   
   if (params.areaCode) {
     apiParams.areaCode = params.areaCode
-    if (params.sigunguCode) {
-      apiParams.sigunguCode = params.sigunguCode
+    if (params.sigungucode) {
+      apiParams.sigunguCode = params.sigungucode
     }
   }
   
@@ -369,27 +361,128 @@ export const getAreaBasedList = async (params: SearchParams): Promise<TourItem[]
   }
 }
 
-// 전체 카테고리에서 검색하는 함수 - 단순화 버전 (디버깅용)
+// 상세 정보 조회 (detailCommon2 API)
+export const getDetailInfo = async (contentId: string, contentTypeId: string): Promise<Partial<TourItem>> => {
+  if (!contentId || !contentTypeId) {
+    console.warn('contentId 또는 contentTypeId가 없습니다')
+    return {}
+  }
+
+  const apiParams: Record<string, string | number> = {
+    contentId: contentId,
+    contentTypeId: contentTypeId,
+    MobileOS: 'ETC',
+    MobileApp: 'RunInDay',
+    _type: 'json',
+    defaultYN: 'Y',
+    firstImageYN: 'Y',
+    areacodeYN: 'Y',
+    catcodeYN: 'Y',
+    addrinfoYN: 'Y',
+    mapinfoYN: 'Y',
+    overviewYN: 'Y'
+  }
+
+  try {
+    const data = await fetchTourApi('detailCommon2', apiParams)
+    
+    console.log('📦 getDetailInfo 응답 구조:', {
+      hasResponse: !!data.response,
+      dataKeys: Object.keys(data),
+      contentId: contentId
+    })
+    
+    if (!data.response) {
+      console.log('⚠️ getDetailInfo data.response가 없습니다:', data)
+      return {}
+    }
+    
+    if (data.response.header?.resultCode !== '0000') {
+      console.warn('Detail API error:', data.response.header?.resultMsg)
+      return {}
+    }
+    
+    const items = data.response.body?.items?.item
+    
+    if (!items) {
+      console.log('📋 getDetailInfo items가 없습니다:', data.response.body)
+      return {}
+    }
+    
+    const item = Array.isArray(items) ? items[0] : items
+    
+    // 상세 정보만 추출하여 반환
+    return {
+      overview: item.overview || '',
+      homepage: item.homepage || '',
+      telname: item.telname || ''
+    }
+  } catch (error) {
+    console.error('Get detail info error:', error)
+    return {}
+  }
+}
+
+// 전체 카테고리에서 검색하는 함수 - 병렬 처리 최적화 버전
 export const searchAllCategories = async (params: SearchParams): Promise<TourItem[]> => {
   const keyword = params.keyword || ''
   
-  console.log('🔍 전체 검색 시작:', { keyword, pageNo: params.pageNo })
+  console.log('🔍 전체 검색 시작 (병렬):', { keyword, pageNo: params.pageNo })
   
   try {
-    // 단순한 키워드 검색만 수행 (복잡한 로직 제거)
-    const results = await searchKeyword({
-      keyword: params.keyword,
-      numOfRows: params.numOfRows || 10,
-      pageNo: params.pageNo || 1,
-      arrange: 'A' // 제목순 정렬로 변경
-    })
-    
-    console.log('🎯 전체 검색 결과:', results.length, '개')
-    if (results.length > 0) {
-      console.log('📋 첫 번째 결과 제목:', results[0].title)
+    if (keyword) {
+      // 검색어가 있을 때: 병렬로 여러 카테고리 검색
+      const [touristResults, festivalResults, sportsResults] = await Promise.all([
+        // 관광지 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '12',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => []),
+        
+        // 축제/대회 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '15',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => []),
+        
+        // 레포츠 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '28',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => [])
+      ])
+      
+      // 결과 합치기
+      const results = [...touristResults, ...festivalResults, ...sportsResults]
+      
+      console.log('🎯 병렬 검색 완료:', {
+        관광지: touristResults.length,
+        축제: festivalResults.length,
+        레포츠: sportsResults.length,
+        전체: results.length
+      })
+      
+      return results
+    } else {
+      // 검색어가 없을 때: 인기 콘텐츠 표시
+      const results = await getAreaBasedList({
+        numOfRows: params.numOfRows || 10,
+        pageNo: params.pageNo || 1,
+        arrange: 'P'
+      })
+      
+      console.log('🎯 인기 콘텐츠:', results.length, '개')
+      return results
     }
-    
-    return results
   } catch (error) {
     console.error('❌ 전체 검색 에러:', error)
     return []

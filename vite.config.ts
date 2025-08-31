@@ -46,6 +46,19 @@ export default defineConfig({
             console.log('Durunubi Proxy response:', proxyRes.statusCode, req.url)
           })
         }
+      },
+      '/api/gpx': {
+        target: 'https://www.durunubi.kr',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/gpx/, '/editImgUp.do'),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('GPX Proxying:', req.method, req.url, '→', proxyReq.path)
+          })
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('GPX Proxy response:', proxyRes.statusCode, req.url)
+          })
+        }
       }
     }
   }
