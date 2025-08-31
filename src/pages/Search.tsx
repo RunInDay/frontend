@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import styled from '@emotion/styled'
-import { searchKeyword, searchFestival, getAreaBasedList, searchAllCategories, getDetailInfo } from '@/features/search'
+import { searchKeyword, searchFestival, getAreaBasedList, searchAllCategories, searchTouristCategories, getDetailInfo } from '@/features/search'
 import { searchRunningCourses } from '@/features/search/services/durunubiApi'
 import type { TourItem, ContentType } from '@/features/search'
 import { ContentTypeMap, classifyTourDistance } from '@/features/search'
@@ -434,6 +434,13 @@ const Search = () => {
           numOfRows: 10,
           pageNo: currentPage
         })
+      } else if (activeTab === 'tourist') {
+        // 관광지 탭: 관광지 + 음식점 + 숙박 통합 검색
+        results = await searchTouristCategories({
+          keyword: searchQuery.trim() || undefined,
+          numOfRows: 10,
+          pageNo: currentPage
+        })
       } else if (searchQuery.trim()) {
         // 검색어가 있을 때는 키워드 검색
         results = await searchKeyword({
@@ -639,8 +646,8 @@ const Search = () => {
                         <CardImage image={item.firstimage} />
                       ) : (
                         <div style={{
-                          width: '300px',
-                          height: '160px',
+                          width: '100%',
+                          height: '200px',
                           backgroundColor: '#f5f5f5',
                           display: 'flex',
                           alignItems: 'center',

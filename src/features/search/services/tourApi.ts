@@ -423,16 +423,16 @@ export const getDetailInfo = async (contentId: string, contentTypeId: string): P
   }
 }
 
-// 전체 카테고리에서 검색하는 함수 - 병렬 처리 최적화 버전
-export const searchAllCategories = async (params: SearchParams): Promise<TourItem[]> => {
+// 관광지 통합 검색 (관광지 + 음식점 + 숙박)
+export const searchTouristCategories = async (params: SearchParams): Promise<TourItem[]> => {
   const keyword = params.keyword || ''
   
-  console.log('🔍 전체 검색 시작 (병렬):', { keyword, pageNo: params.pageNo })
+  console.log('🏛️ 관광지 통합 검색 시작:', { keyword, pageNo: params.pageNo })
   
   try {
     if (keyword) {
-      // 검색어가 있을 때: 병렬로 여러 카테고리 검색
-      const [touristResults, festivalResults, sportsResults] = await Promise.all([
+      // 검색어가 있을 때: 병렬로 관광 관련 카테고리 검색
+      const [touristResults, restaurantResults, accommodationResults] = await Promise.all([
         // 관광지 검색
         searchKeyword({
           keyword: params.keyword,
@@ -442,11 +442,78 @@ export const searchAllCategories = async (params: SearchParams): Promise<TourIte
           arrange: 'P'
         }).catch(() => []),
         
+        // 음식점 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '39',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => []),
+        
+        // 숙박 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '32',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => [])
+      ])
+      
+      // 결과 합치기
+      const results = [...touristResults, ...restaurantResults, ...accommodationResults]
+      
+      console.log('🏛️ 관광지 통합 검색 완료:', {
+        관광지: touristResults.length,
+        음식점: restaurantResults.length,
+        숙박: accommodationResults.length,
+        전체: results.length
+      })
+      
+      return results
+    } else {
+      // 검색어가 없을 때: 관광지 우선으로 표시
+      const results = await getAreaBasedList({
+        contentTypeId: '12', // 관광지
+        numOfRows: params.numOfRows || 10,
+        pageNo: params.pageNo || 1,
+        arrange: 'P'
+      })
+      
+      console.log('🏛️ 관광지 기본 목록:', results.length, '개')
+      return results
+    }
+  } catch (error) {
+    console.error('❌ 관광지 통합 검색 에러:', error)
+    return []
+  }
+}
+
+// 전체 카테고리에서 검색하는 함수 - 병렬 처리 최적화 버전
+export const searchAllCategories = async (params: SearchParams): Promise<TourItem[]> => {
+  const keyword = params.keyword || ''
+  
+  console.log('🔍 전체 검색 시작 (병렬):', { keyword, pageNo: params.pageNo })
+  
+  try {
+    if (keyword) {
+      // 검색어가 있을 때: 병렬로 여러 카테고리 검색
+      const [touristResults, festivalResults, sportsResults, restaurantResults, accommodationResults] = await Promise.all([
+        // 관광지 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '12',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 5),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => []),
+        
         // 축제/대회 검색
         searchKeyword({
           keyword: params.keyword,
           contentTypeId: '15',
-          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          numOfRows: Math.ceil((params.numOfRows || 10) / 5),
           pageNo: params.pageNo || 1,
           arrange: 'P'
         }).catch(() => []),
@@ -455,19 +522,39 @@ export const searchAllCategories = async (params: SearchParams): Promise<TourIte
         searchKeyword({
           keyword: params.keyword,
           contentTypeId: '28',
-          numOfRows: Math.ceil((params.numOfRows || 10) / 3),
+          numOfRows: Math.ceil((params.numOfRows || 10) / 5),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => []),
+        
+        // 음식점 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '39',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 5),
+          pageNo: params.pageNo || 1,
+          arrange: 'P'
+        }).catch(() => []),
+        
+        // 숙박 검색
+        searchKeyword({
+          keyword: params.keyword,
+          contentTypeId: '32',
+          numOfRows: Math.ceil((params.numOfRows || 10) / 5),
           pageNo: params.pageNo || 1,
           arrange: 'P'
         }).catch(() => [])
       ])
       
       // 결과 합치기
-      const results = [...touristResults, ...festivalResults, ...sportsResults]
+      const results = [...touristResults, ...festivalResults, ...sportsResults, ...restaurantResults, ...accommodationResults]
       
       console.log('🎯 병렬 검색 완료:', {
         관광지: touristResults.length,
         축제: festivalResults.length,
         레포츠: sportsResults.length,
+        음식점: restaurantResults.length,
+        숙박: accommodationResults.length,
         전체: results.length
       })
       

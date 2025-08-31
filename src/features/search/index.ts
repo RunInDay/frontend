@@ -4,6 +4,7 @@ export {
   searchFestival,
   getAreaBasedList,
   searchAllCategories,
+  searchTouristCategories,
   getDetailInfo
 } from './services/tourApi'
 

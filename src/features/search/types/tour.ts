@@ -63,7 +63,7 @@ export type ContentType = 'all' | 'running' | 'tourist' | 'festival'
 export const ContentTypeMap: Record<ContentType, string | undefined> = {
   all: undefined,
   running: '28', // 레포츠 (스포츠 시설, 러닝코스)
-  tourist: '12', // 관광지
+  tourist: '12', // 관광지 (실제로는 관광지+음식점+숙박 통합)
   festival: '15' // 축제공연행사 (대회정보 포함)
 }
 
