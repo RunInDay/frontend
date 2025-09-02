@@ -8,7 +8,7 @@ export async function signUpWithEmail(values: SignUpValues) {
     email,
     password,
     options: {
-      data: metadata ?? {}, // { nickname, profile_image, ... }
+      data: metadata ?? {},
       emailRedirectTo: import.meta.env.VITE_AUTH_REDIRECT_URL,
     },
   })
@@ -24,27 +24,16 @@ export async function signInWithEmail(values: SignInValues) {
   return data
 }
 
-/** 소셜 로그인 (Google / Kakao / Naver + Custom OIDC 대응) */
+/** 소셜 로그인 (Google / Kakao + Custom OIDC 대응) */
 export async function signInWithOAuth(provider: OAuthProvider) {
-  // Kakao, Naver가 프로젝트에 "직접 프로바이더"로 있으면 그대로,
+  // Kakao가 프로젝트에 "직접 프로바이더"로 있으면 그대로,
   // Custom OIDC로 등록했다면 provider='oidc', providerId 사용
   const redirectTo = import.meta.env.VITE_AUTH_REDIRECT_URL
 
-  // 프로젝트 설정에 맞게 우선순위: direct → oidc
-  const directProviders = ['google', 'kakao', 'naver'] as const
-  if (directProviders.includes(provider as any)) {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: provider as any,
-      options: { redirectTo },
-    })
-    if (error) throw error
-    return data
-  }
-
-  // OIDC 경로 (providerId: 'kakao' | 'naver' 로 대시보드에서 등록)
+  // 구글은 기본 provider로 직접 호출(타입 안전)
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'oidc',
-    options: { redirectTo, providerId: provider },
+    provider,
+    options: { redirectTo },
   })
   if (error) throw error
   return data

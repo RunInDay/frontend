@@ -1,4 +1,3 @@
-import React from 'react'
 import { signInWithOAuth } from '../services/auth'
 
 type Props = {
@@ -7,7 +6,7 @@ type Props = {
 }
 
 export default function SocialButtons({ onLoading, onError }: Props) {
-  const handle = async (provider: 'google' | 'kakao' | 'naver') => {
+  const handle = async (provider: 'google' | 'kakao') => {
     try {
       onLoading?.(true)
       // 구글/카카오/네이버 모두 이 함수 하나로 처리
@@ -23,8 +22,7 @@ export default function SocialButtons({ onLoading, onError }: Props) {
   return (
     <div className="social-buttons" style={{ display: 'grid', gap: 8 }}>
       <button onClick={() => handle('google')}>Continue with Google</button>
-      <button onClick={() => handle('kakao')}>카카오로 계속하기</button>
-      <button onClick={() => handle('naver')}>네이버로 계속하기</button>
+      <button onClick={() => handle('kakao')}>Continue with Kakao</button>
     </div>
   )
 }

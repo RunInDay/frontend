@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { isEmail, isStrongPassword } from '../utils/validators'
 import { signUpWithEmail } from '../services/auth'
 
@@ -9,7 +9,7 @@ type Props = {
 export default function SignupForm({ onSuccess }: Props) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [nickname, setNickname] = useState('')
+  const [username, setUsername] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -24,7 +24,7 @@ export default function SignupForm({ onSuccess }: Props) {
       await signUpWithEmail({
         email,
         password,
-        metadata: { nickname },
+        metadata: { username },
       })
       onSuccess?.()
     } catch (e: any) {
@@ -51,8 +51,8 @@ export default function SignupForm({ onSuccess }: Props) {
       />
       <input
         placeholder="닉네임 (선택)"
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
       {error && <p style={{ color: 'tomato' }}>{error}</p>}
       <button type="submit" disabled={loading}>
