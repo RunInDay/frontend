@@ -4,6 +4,7 @@ import MyPage from '@/pages/MyPage'
 import Map from '@/pages/Map'
 import Search from '@/pages/Search'
 import Community from '@/pages/Community'
+import Navigation from '@/features/Navigation/Navigation'
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/community" element={<Community />} />
       </Routes>
+      <Navigation />
     </>
   )
 }
