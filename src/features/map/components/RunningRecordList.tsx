@@ -120,14 +120,12 @@ const recordHeaderStyles = css`
 `
 
 const dateTextStyles = css`
-  font-family: 'PretendardSemiBold', sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: #333;
 `
 
 const summaryTextStyles = css`
-  font-family: 'PretendardRegular', sans-serif;
   font-size: 14px;
   color: #666;
 `
@@ -135,7 +133,6 @@ const summaryTextStyles = css`
 const toggleButtonStyles = css`
   background: none;
   border: none;
-  font-family: 'PretendardRegular', sans-serif;
   font-size: 12px;
   color: #666;
   cursor: pointer;
@@ -154,8 +151,8 @@ const toggleIconStyles = (isExpanded: boolean) => css`
 `
 
 const detailSectionStyles = (isExpanded: boolean) => css`
-  max-height: ${isExpanded ? '200px' : '0'};
-  overflow: hidden;
+  max-height: ${isExpanded ? '600px' : '0'};
+  overflow: ${isExpanded ? 'visible' : 'hidden'};
   transition: max-height 0.3s ease;
   margin-top: 12px;
   padding-top: 12px;
@@ -166,7 +163,6 @@ const detailItemStyles = css`
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
-  font-family: 'PretendardRegular', sans-serif;
   font-size: 14px;
 `
 
@@ -175,7 +171,6 @@ const detailLabelStyles = css`
 `
 
 const detailValueStyles = css`
-  font-family: 'PretendardSemiBold', sans-serif;
   color: #333;
   font-weight: 500;
 `
@@ -184,10 +179,11 @@ const mapSectionStyles = css`
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid #f0f0f0;
+  position: relative;
+  z-index: 10;
 `
 
 const mapTitleStyles = css`
-  font-family: 'PretendardSemiBold', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #333;
