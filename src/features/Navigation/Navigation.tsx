@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 
 const Navigation = () => {
   const navLinks = [
-    { name: '로그인', path: '/login' },
-    { name: '마이페이지', path: '/mypage' },
-    { name: '지도', path: '/map' },
-    { name: '검색', path: '/search' },
+    { name: '홈', path: '/search ' },
     { name: '커뮤니티', path: '/community' },
+    { name: 'RUN', path: '/running' },
+    { name: '내 러닝 지도', path: '/map' },
+    { name: '마이페이지', path: '/mypage' },
   ]
 
   return (
@@ -28,7 +28,6 @@ const Navigation = () => {
 
 export default Navigation
 const navContainer = css`
-  background-color: #1f2937;
   padding: 0.75rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-bottom-left-radius: 0.75rem;
@@ -43,7 +42,6 @@ const navList = css`
 `
 
 const navLink = css`
-  color: white;
   font-size: 0.875rem; /* text-sm */
   font-weight: 500;
   padding: 0.5rem 0.75rem;
